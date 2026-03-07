@@ -1,0 +1,126 @@
+.section {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+  margin-bottom: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  line-height: 1.7;
+}
+
+.heading {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.example {
+  background: var(--surface2);
+  border: none;
+  color: var(--muted);
+  padding: 4px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  font-style: italic;
+  transition: background 0.15s, color 0.15s;
+}
+
+.example:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.form {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.input {
+  flex: 1;
+  background: var(--surface2);
+  border: none;
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+  max-height: calc(4 * 1.5 * 0.95rem + 20px);
+  overflow-y: auto;
+  transition: background 0.15s;
+}
+
+.input:focus { background: var(--border); }
+.input:disabled { opacity: 0.5; }
+.input::placeholder { color: var(--muted); }
+
+.sendBtn {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: 0;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: calc(1.5 * 0.9rem + 20px);
+  height: calc(1.5 * 0.9rem + 20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.sendBtn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.sendBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.error {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: #ef4444;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

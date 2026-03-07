@@ -1,0 +1,26 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #f7f5f2;
+  --surface:  #ffffff;
+  --surface2: #f2f0ed;
+  --border:   #e8e4df;
+  --text:     #1c1917;
+  --muted:    #a8a29e;
+  --cal:      #fb923c;
+  --protein:  #60a5fa;
+  --carbs:    #f472b6;
+  --fat:      #34d399;
+  --sodium:   #a78bfa;
+  --sugar:    #fb7185;
+  --accent:   #f97316;
+  --radius:   16px;
+  --shadow:   0 1px 6px rgba(0, 0, 0, 0.07);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
