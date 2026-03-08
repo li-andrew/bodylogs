@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { updateFoodEntry } from '../../lib/claudeParser';
 import styles from './EditFoodModal.module.css';
 
@@ -7,8 +7,6 @@ export default function EditFoodModal({ entry, onClose, onSave }) {
   const [aiText, setAiText] = useState('');
   const [aiStatus, setAiStatus] = useState('idle'); // idle | loading | error
   const aiInputRef = useRef(null);
-
-  useEffect(() => { setFields(entry); }, [entry]);
 
   function set(key, value) {
     setFields(prev => ({ ...prev, [key]: value }));

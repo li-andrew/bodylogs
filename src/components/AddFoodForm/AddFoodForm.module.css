@@ -41,7 +41,7 @@
 
 .form {
   display: grid;
-  grid-template-columns: 2fr 1fr repeat(6, 1fr) auto;
+  grid-template-columns: 3fr 1fr repeat(6, 1fr) auto;
   gap: 8px;
   align-items: end;
 }
@@ -82,9 +82,6 @@
 .dropdownName {
   font-size: 0.84rem;
   color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .dropdownBrand {
@@ -174,6 +171,58 @@
 
 .headingRow .heading {
   margin-bottom: 0;
+}
+
+.headingActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.linkBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface2);
+  border: none;
+  color: var(--muted);
+  padding: 5px 13px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.linkBtn:hover:not(:disabled) {
+  background: var(--border);
+  color: var(--text);
+}
+
+.linkBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.linkBtnActive {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(249, 115, 22, 0.12);
+  border: none;
+  color: var(--accent);
+  padding: 5px 13px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.linkBtnActive:hover {
+  background: rgba(249, 115, 22, 0.2);
 }
 
 .recipeModeBtn {

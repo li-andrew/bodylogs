@@ -3,9 +3,9 @@ import { QUICK_FOODS } from '../../data/quickFoods';
 import styles from './AddFoodForm.module.css';
 
 const EMPTY = { name: '', cal: '', protein: '', carbs: '', fat: '', sodium: '', sugar: '' };
+const EMPTY_CACHE = { cal: 0, protein: 0, carbs: 0, fat: 0, sodium: 0, sugar: 0, grams: 0 };
 
 const NUTRIENT_IDS = { 1008: 'cal', 1003: 'protein', 1005: 'carbs', 1004: 'fat', 1093: 'sodium', 2000: 'sugar' };
-
 const MACRO_KEYS = ['cal', 'protein', 'carbs', 'fat', 'sodium', 'sugar'];
 
 function sumIngredients(ingredients) {
@@ -21,18 +21,36 @@ export default function AddFoodForm({ onAdd }) {
   const [showDrop, setShowDrop] = useState(false);
   const [baseNutrients, setBaseNutrients] = useState(null);
   const [grams, setGrams] = useState('');
+  const [cache, setCache] = useState(EMPTY_CACHE);
+  function updateCache(valOrFn, label = 'update') {
+    setCache(prev => {
+      const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
+      console.log(`[cache:${label}]`, next);
+      return next;
+    });
+  }
+  const [linked, setLinked] = useState(false);
   const [recipeMode, setRecipeMode] = useState(false);
   const [recipeName, setRecipeName] = useState('');
   const [recipeIngredients, setRecipeIngredients] = useState([]);
   const debounceRef = useRef(null);
 
-  function set(key, value) {
-    setFields(prev => ({ ...prev, [key]: value }));
-  }
+  // Link is only usable once at least one macro has a non-zero reference value
+  const canLink = MACRO_KEYS.some(k => cache[k] > 0);
 
   function fillQuick(food) {
     setBaseNutrients(null);
-    setGrams('');
+    setGrams(food.grams != null ? String(food.grams) : '');
+    const newCache = {
+      cal:     food.cal     || 0,
+      protein: food.protein || 0,
+      carbs:   food.carbs   || 0,
+      fat:     food.fat     || 0,
+      sodium:  food.sodium  ?? 0,
+      sugar:   food.sugar   ?? 0,
+      grams:   food.grams   ?? 0,
+    };
+    updateCache(newCache, 'quick-food');
     setFields({
       name:    food.name,
       cal:     food.cal,
@@ -45,9 +63,10 @@ export default function AddFoodForm({ onAdd }) {
   }
 
   function handleNameChange(value) {
-    set('name', value);
+    setFields(prev => ({ ...prev, name: value }));
     setBaseNutrients(null);
     setGrams('');
+    updateCache(EMPTY_CACHE, 'name-change-reset');
     clearTimeout(debounceRef.current);
     if (value.length < 2) { setSuggestions([]); setShowDrop(false); return; }
     debounceRef.current = setTimeout(async () => {
@@ -74,6 +93,16 @@ export default function AddFoodForm({ onAdd }) {
     });
     setBaseNutrients(nutrients);
     setGrams('100');
+    // Cache = per-100g nutrient values from API
+    updateCache({
+      cal:     nutrients.cal     ?? 0,
+      protein: nutrients.protein ?? 0,
+      carbs:   nutrients.carbs   ?? 0,
+      fat:     nutrients.fat     ?? 0,
+      sodium:  nutrients.sodium  ?? 0,
+      sugar:   nutrients.sugar   ?? 0,
+      grams:   100,
+    }, 'usda-select');
     setFields({
       name:    food.description,
       cal:     nutrients.cal     ?? '',
@@ -89,25 +118,88 @@ export default function AddFoodForm({ onAdd }) {
 
   function handleGramsChange(value) {
     setGrams(value);
-    if (!baseNutrients) return;
     const g = parseFloat(value);
     if (isNaN(g) || g < 0) return;
-    const r = g / 100;
-    setFields(prev => ({
-      ...prev,
-      cal:     baseNutrients.cal     != null ? Math.round(baseNutrients.cal     * r * 10) / 10 : prev.cal,
-      protein: baseNutrients.protein != null ? Math.round(baseNutrients.protein * r * 10) / 10 : prev.protein,
-      carbs:   baseNutrients.carbs   != null ? Math.round(baseNutrients.carbs   * r * 10) / 10 : prev.carbs,
-      fat:     baseNutrients.fat     != null ? Math.round(baseNutrients.fat     * r * 10) / 10 : prev.fat,
-      sodium:  baseNutrients.sodium  != null ? Math.round(baseNutrients.sodium  * r * 10) / 10 : prev.sodium,
-      sugar:   baseNutrients.sugar   != null ? Math.round(baseNutrients.sugar   * r * 10) / 10 : prev.sugar,
-    }));
+
+    if (baseNutrients) {
+      const r = g / 100;
+      const scaled = {};
+      MACRO_KEYS.forEach(k => {
+        if (baseNutrients[k] != null) scaled[k] = Math.round(baseNutrients[k] * r * 10) / 10;
+      });
+      setFields(prev => ({ ...prev, ...scaled }));
+      if (!linked) updateCache(prev => ({ ...prev, ...scaled, grams: g }), 'grams-scale');
+      return;
+    }
+
+    if (linked && cache.grams > 0) {
+      // Manual food, linked: scale all macros from cache using grams ratio
+      const ratio = g / cache.grams;
+      setFields(prev => {
+        const next = { ...prev };
+        MACRO_KEYS.forEach(k => { next[k] = Math.round(cache[k] * ratio * 10) / 10; });
+        return next;
+      });
+      return;
+    }
+
+    // Manual, unlinked: just track grams in cache
+    if (!linked) updateCache(prev => ({ ...prev, grams: g }), 'grams');
+  }
+
+  function handleMacroChange(key, value) {
+    const numVal = parseFloat(value);
+
+    if (!linked) {
+      // Unlinked: update field and keep cache in sync
+      setFields(prev => ({ ...prev, [key]: value }));
+      if (!isNaN(numVal) && numVal >= 0) {
+        updateCache(prev => ({ ...prev, [key]: numVal }), `field:${key}`);
+      }
+      return;
+    }
+
+    // Linked: scale every other macro proportionally from cache
+    const cacheVal = cache[key];
+    if (isNaN(numVal) || numVal <= 0 || cacheVal <= 0) {
+      // No valid ratio — only update this field
+      setFields(prev => ({ ...prev, [key]: value }));
+      return;
+    }
+
+    const ratio = numVal / cacheVal;
+    setFields(prev => {
+      const next = { ...prev, [key]: value };
+      MACRO_KEYS.forEach(k => {
+        if (k !== key) next[k] = Math.round(cache[k] * ratio * 10) / 10;
+      });
+      return next;
+    });
+    if (cache.grams > 0) setGrams(String(Math.round(cache.grams * ratio * 10) / 10));
+  }
+
+  function toggleLinked() {
+    if (linked) {
+      // Turning off: sync cache to current displayed values so the next
+      // unlinked edits start from wherever the user left off
+      const synced = {};
+      MACRO_KEYS.forEach(k => {
+        const v = parseFloat(fields[k]);
+        synced[k] = isNaN(v) ? cache[k] : v;
+      });
+      const g = parseFloat(grams);
+      synced.grams = isNaN(g) ? cache.grams : g;
+      updateCache(synced, 'unlink-sync');
+    }
+    setLinked(l => !l);
   }
 
   function clearForm() {
     setFields(EMPTY);
     setBaseNutrients(null);
     setGrams('');
+    updateCache(EMPTY_CACHE, 'clear');
+    setLinked(false);
   }
 
   function handleSubmit(e) {
@@ -122,7 +214,7 @@ export default function AddFoodForm({ onAdd }) {
       fat:     parseFloat(fields.fat)     || 0,
       sodium:  parseFloat(fields.sodium)  || 0,
       sugar:   parseFloat(fields.sugar)   || 0,
-      ...(baseNutrients && !isNaN(g) ? { grams: g } : {}),
+      ...(!isNaN(g) && g > 0 ? { grams: g } : {}),
     });
     clearForm();
   }
@@ -138,7 +230,7 @@ export default function AddFoodForm({ onAdd }) {
       fat:     parseFloat(fields.fat)     || 0,
       sodium:  parseFloat(fields.sodium)  || 0,
       sugar:   parseFloat(fields.sugar)   || 0,
-      ...(baseNutrients && !isNaN(g) ? { grams: g } : {}),
+      ...(!isNaN(g) && g > 0 ? { grams: g } : {}),
     }]);
     clearForm();
   }
@@ -172,13 +264,29 @@ export default function AddFoodForm({ onAdd }) {
     <section className={styles.section}>
       <div className={styles.headingRow}>
         <h2 className={styles.heading}>{recipeMode ? 'Add Recipe' : 'Add Food'}</h2>
-        <button
-          type="button"
-          className={recipeMode ? styles.recipeModeActiveBtn : styles.recipeModeBtn}
-          onClick={() => recipeMode ? cancelRecipe() : setRecipeMode(true)}
-        >
-          {recipeMode ? 'Cancel Recipe' : 'Make Recipe'}
-        </button>
+        <div className={styles.headingActions}>
+          <span title={!canLink ? 'Enter at least one macro value to enable proportional scaling' : undefined}>
+            <button
+              type="button"
+              className={linked ? styles.linkBtnActive : styles.linkBtn}
+              onClick={toggleLinked}
+              disabled={!canLink}
+            >
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M6.5 9.5a3.5 3.5 0 0 0 5 0l2-2a3.5 3.5 0 0 0-5-5L7.5 3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                <path d="M9.5 6.5a3.5 3.5 0 0 0-5 0l-2 2a3.5 3.5 0 0 0 5 5l1-1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+              {linked ? 'Linked' : 'Link'}
+            </button>
+          </span>
+          <button
+            type="button"
+            className={recipeMode ? styles.recipeModeActiveBtn : styles.recipeModeBtn}
+            onClick={() => recipeMode ? cancelRecipe() : setRecipeMode(true)}
+          >
+            {recipeMode ? 'Cancel Recipe' : 'Make Recipe'}
+          </button>
+        </div>
       </div>
 
       {recipeMode && (
@@ -232,12 +340,10 @@ export default function AddFoodForm({ onAdd }) {
         <div className={styles.field}>
           <label>Grams</label>
           <input
-            type="number" min="0" step="1"
+            type="number" min="0" step="any"
             value={grams}
             onChange={e => handleGramsChange(e.target.value)}
             placeholder="g"
-            disabled={!baseNutrients}
-            className={!baseNutrients ? styles.inputDisabled : ''}
           />
         </div>
         {[
@@ -253,7 +359,7 @@ export default function AddFoodForm({ onAdd }) {
             <input
               type="number" min="0" step="0.1"
               value={fields[key]}
-              onChange={e => set(key, e.target.value)}
+              onChange={e => handleMacroChange(key, e.target.value)}
               placeholder={placeholder}
             />
           </div>

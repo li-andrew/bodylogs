@@ -2,11 +2,16 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Header.module.css';
 
+function localKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 function formatDateLabel(key) {
-  const today = new Date().toISOString().slice(0, 10);
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yKey = yesterday.toISOString().slice(0, 10);
+  const now = new Date();
+  const today = localKey(now);
+  const yDate = new Date(now);
+  yDate.setDate(yDate.getDate() - 1);
+  const yKey = localKey(yDate);
 
   if (key === today) return 'Today';
   if (key === yKey) return 'Yesterday';
@@ -54,12 +59,6 @@ export default function Header({ currentDate, onPrevDay, onNextDay, onOpenGoals 
           </button>
           {open && (
             <div className={styles.dropdownMenu}>
-              <button
-                className={styles.dropdownItem}
-                onClick={() => { setOpen(false); onOpenGoals(); }}
-              >
-                Set new goals
-              </button>
               {isHome ? (
                 <button
                   className={styles.dropdownItem}
@@ -75,6 +74,12 @@ export default function Header({ currentDate, onPrevDay, onNextDay, onOpenGoals 
                   View daily logs
                 </button>
               )}
+              <button
+                className={styles.dropdownItem}
+                onClick={() => { setOpen(false); onOpenGoals(); }}
+              >
+                Set new goals
+              </button>
             </div>
           )}
         </div>

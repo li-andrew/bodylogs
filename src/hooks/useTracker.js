@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { DEFAULT_GOALS } from '../data/defaultGoals';
 
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function shiftDate(key, days) {
   const d = new Date(key + 'T00:00:00');
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function loadAllLogs() {

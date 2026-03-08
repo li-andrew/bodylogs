@@ -3,10 +3,10 @@ import { parseFoodEntry } from '../../lib/claudeParser';
 import styles from './FoodChat.module.css';
 
 const EXAMPLES = [
-  '2 scrambled eggs and toast with butter',
-  'grande Starbucks latte with oat milk',
-  'grilled chicken caesar salad, no croutons',
-  'handful of almonds',
+  'bowl of tonkotsu ramen with chashu pork',
+  'plate of pad thai with shrimp',
+  'bibimbap with beef and fried egg',
+  'dim sum — 3 har gow and 2 siu mai',
 ];
 
 export default function FoodChat({ onAddMany }) {
@@ -80,7 +80,7 @@ export default function FoodChat({ onAddMany }) {
           value={text}
           onChange={e => { setText(e.target.value); setStatus('idle'); autoResize(e.target); }}
           onKeyDown={handleKeyDown}
-          placeholder="e.g. 3 slices of pepperoni pizza and a Diet Coke"
+          placeholder="e.g. grilled chicken breast with roasted vegetables"
           rows={2}
           disabled={status === 'loading'}
         />
