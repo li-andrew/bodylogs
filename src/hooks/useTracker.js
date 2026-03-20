@@ -1,16 +1,7 @@
 import { useState } from 'react';
 import { DEFAULT_GOALS } from '../data/defaultGoals';
-
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-function shiftDate(key, days) {
-  const d = new Date(key + 'T00:00:00');
-  d.setDate(d.getDate() + days);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
+import { MACRO_KEYS } from '../data/macros';
+import { todayKey, shiftDate } from '../lib/dateUtils';
 
 function loadAllLogs() {
   const all = {};
@@ -26,7 +17,6 @@ function loadAllLogs() {
 function loadGoals() {
   try {
     const raw = localStorage.getItem('goals');
-    // Merge with DEFAULT_GOALS so any newly added fields always have a value
     return raw ? { ...DEFAULT_GOALS, ...JSON.parse(raw) } : DEFAULT_GOALS;
   } catch { return DEFAULT_GOALS; }
 }
@@ -66,15 +56,12 @@ export function useTracker() {
   }
 
   const totals = currentLog.reduce(
-    (acc, e) => ({
-      cal:     acc.cal     + e.cal,
-      protein: acc.protein + e.protein,
-      carbs:   acc.carbs   + e.carbs,
-      fat:     acc.fat     + e.fat,
-      sodium:  acc.sodium  + (e.sodium  ?? 0),
-      sugar:   acc.sugar   + (e.sugar   ?? 0),
-    }),
-    { cal: 0, protein: 0, carbs: 0, fat: 0, sodium: 0, sugar: 0 },
+    (acc, e) => {
+      const next = {};
+      MACRO_KEYS.forEach(k => { next[k] = acc[k] + (e[k] ?? 0); });
+      return next;
+    },
+    Object.fromEntries(MACRO_KEYS.map(k => [k, 0])),
   );
 
   return {

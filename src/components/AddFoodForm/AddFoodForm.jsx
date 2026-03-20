@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react';
 import { QUICK_FOODS } from '../../data/quickFoods';
+import { MACRO_KEYS } from '../../data/macros';
 import styles from './AddFoodForm.module.css';
 
 const EMPTY = { name: '', cal: '', protein: '', carbs: '', fat: '', sodium: '', sugar: '' };
 const EMPTY_CACHE = { cal: 0, protein: 0, carbs: 0, fat: 0, sodium: 0, sugar: 0, grams: 0 };
 
 const NUTRIENT_IDS = { 1008: 'cal', 1003: 'protein', 1005: 'carbs', 1004: 'fat', 1093: 'sodium', 2000: 'sugar' };
-const MACRO_KEYS = ['cal', 'protein', 'carbs', 'fat', 'sodium', 'sugar'];
 
 function sumIngredients(ingredients) {
   return MACRO_KEYS.reduce((acc, k) => {
@@ -22,12 +22,8 @@ export default function AddFoodForm({ onAdd }) {
   const [baseNutrients, setBaseNutrients] = useState(null);
   const [grams, setGrams] = useState('');
   const [cache, setCache] = useState(EMPTY_CACHE);
-  function updateCache(valOrFn, label = 'update') {
-    setCache(prev => {
-      const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
-      console.log(`[cache:${label}]`, next);
-      return next;
-    });
+  function updateCache(valOrFn) {
+    setCache(prev => typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn);
   }
   const [linked, setLinked] = useState(false);
   const [recipeMode, setRecipeMode] = useState(false);
@@ -50,7 +46,7 @@ export default function AddFoodForm({ onAdd }) {
       sugar:   food.sugar   ?? 0,
       grams:   food.grams   ?? 0,
     };
-    updateCache(newCache, 'quick-food');
+    updateCache(newCache);
     setFields({
       name:    food.name,
       cal:     food.cal,
@@ -66,7 +62,7 @@ export default function AddFoodForm({ onAdd }) {
     setFields(prev => ({ ...prev, name: value }));
     setBaseNutrients(null);
     setGrams('');
-    updateCache(EMPTY_CACHE, 'name-change-reset');
+    updateCache(EMPTY_CACHE);
     clearTimeout(debounceRef.current);
     if (value.length < 2) { setSuggestions([]); setShowDrop(false); return; }
     debounceRef.current = setTimeout(async () => {
@@ -102,7 +98,7 @@ export default function AddFoodForm({ onAdd }) {
       sodium:  nutrients.sodium  ?? 0,
       sugar:   nutrients.sugar   ?? 0,
       grams:   100,
-    }, 'usda-select');
+    });
     setFields({
       name:    food.description,
       cal:     nutrients.cal     ?? '',
@@ -128,7 +124,7 @@ export default function AddFoodForm({ onAdd }) {
         if (baseNutrients[k] != null) scaled[k] = Math.round(baseNutrients[k] * r * 10) / 10;
       });
       setFields(prev => ({ ...prev, ...scaled }));
-      if (!linked) updateCache(prev => ({ ...prev, ...scaled, grams: g }), 'grams-scale');
+      if (!linked) updateCache(prev => ({ ...prev, ...scaled, grams: g }));
       return;
     }
 
@@ -144,7 +140,7 @@ export default function AddFoodForm({ onAdd }) {
     }
 
     // Manual, unlinked: just track grams in cache
-    if (!linked) updateCache(prev => ({ ...prev, grams: g }), 'grams');
+    if (!linked) updateCache(prev => ({ ...prev, grams: g }));
   }
 
   function handleMacroChange(key, value) {
@@ -154,7 +150,7 @@ export default function AddFoodForm({ onAdd }) {
       // Unlinked: update field and keep cache in sync
       setFields(prev => ({ ...prev, [key]: value }));
       if (!isNaN(numVal) && numVal >= 0) {
-        updateCache(prev => ({ ...prev, [key]: numVal }), `field:${key}`);
+        updateCache(prev => ({ ...prev, [key]: numVal }));
       }
       return;
     }
@@ -189,7 +185,7 @@ export default function AddFoodForm({ onAdd }) {
       });
       const g = parseFloat(grams);
       synced.grams = isNaN(g) ? cache.grams : g;
-      updateCache(synced, 'unlink-sync');
+      updateCache(synced);
     }
     setLinked(l => !l);
   }
@@ -198,7 +194,7 @@ export default function AddFoodForm({ onAdd }) {
     setFields(EMPTY);
     setBaseNutrients(null);
     setGrams('');
-    updateCache(EMPTY_CACHE, 'clear');
+    updateCache(EMPTY_CACHE);
     setLinked(false);
   }
 

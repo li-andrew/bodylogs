@@ -24,7 +24,16 @@ function Layout({ tracker }) {
         onClose={() => setGoalsOpen(false)}
         onSave={(g) => { tracker.updateGoals(g); setGoalsOpen(false); }}
       />
-      <Outlet context={{ logs: tracker.logs, goals: tracker.goals }} />
+      <Outlet context={{
+        logs: tracker.logs,
+        goals: tracker.goals,
+        totals: tracker.totals,
+        currentLog: tracker.currentLog,
+        addEntry: tracker.addEntry,
+        addEntries: tracker.addEntries,
+        deleteEntry: tracker.deleteEntry,
+        updateEntry: tracker.updateEntry,
+      }} />
     </div>
   );
 }
@@ -35,17 +44,7 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout tracker={tracker} />}>
-        <Route path="/" element={
-          <Home
-            totals={tracker.totals}
-            goals={tracker.goals}
-            onAddMany={tracker.addEntries}
-            onAdd={tracker.addEntry}
-            entries={tracker.currentLog}
-            onDelete={tracker.deleteEntry}
-            onUpdate={tracker.updateEntry}
-          />
-        } />
+        <Route path="/" element={<Home />} />
         <Route path="/metrics" element={<Metrics />} />
       </Route>
     </Routes>

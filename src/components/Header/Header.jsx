@@ -1,24 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { formatDateLabel } from '../../lib/dateUtils';
 import styles from './Header.module.css';
-
-function localKey(d) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-function formatDateLabel(key) {
-  const now = new Date();
-  const today = localKey(now);
-  const yDate = new Date(now);
-  yDate.setDate(yDate.getDate() - 1);
-  const yKey = localKey(yDate);
-
-  if (key === today) return 'Today';
-  if (key === yKey) return 'Yesterday';
-
-  const d = new Date(key + 'T00:00:00');
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-}
 
 export default function Header({ currentDate, onPrevDay, onNextDay, onOpenGoals }) {
   const { pathname } = useLocation();

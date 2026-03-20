@@ -1,0 +1,102 @@
+.pieSection {
+  margin-top: 16px;
+}
+
+.pieCard {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cardTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+.cardAvg {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.pieContent {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.pieSvg {
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+
+.pieLegend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pieLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.pieLegendItem:hover { background: var(--surface2); }
+
+.pieLegendOff { opacity: 0.4; }
+
+.pieLegendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pieLegendLabel {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 52px;
+}
+
+.pieLegendPct {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 120px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.emptyIcon {
+  font-size: 1.6rem;
+  opacity: 0.35;
+}

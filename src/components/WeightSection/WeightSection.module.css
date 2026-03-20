@@ -1,0 +1,82 @@
+.weightSection {
+  margin-bottom: 16px;
+}
+
+.weightCard {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.weightHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.cardTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+.todayWeight {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.todayLabel {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.goalLabel {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.weightInput {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.weightField {
+  width: 120px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: var(--surface2);
+  color: var(--text);
+  outline: none;
+}
+
+.weightField:focus {
+  border-color: var(--accent);
+}
+
+.weightBtn {
+  padding: 5px 14px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.weightBtn:hover {
+  opacity: 0.88;
+}

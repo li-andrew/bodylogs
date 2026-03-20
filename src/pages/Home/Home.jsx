@@ -4,13 +4,15 @@ import FoodChat from '../../components/FoodChat/FoodChat';
 import AddFoodForm from '../../components/AddFoodForm/AddFoodForm';
 import FoodLog from '../../components/FoodLog/FoodLog';
 
-export default function Home({ totals, goals, onAddMany, onAdd, entries, onDelete, onUpdate }) {
+export default function Home() {
+  const { totals, goals, addEntries, addEntry, currentLog, deleteEntry, updateEntry } = useOutletContext();
+
   return (
     <>
       <SummaryCards totals={totals} goals={goals} />
-      <FoodChat onAddMany={onAddMany} />
-      <AddFoodForm onAdd={onAdd} />
-      <FoodLog entries={entries} onDelete={onDelete} onUpdate={onUpdate} />
+      <FoodChat onAddMany={addEntries} />
+      <AddFoodForm onAdd={addEntry} />
+      <FoodLog entries={currentLog} onDelete={deleteEntry} onUpdate={updateEntry} />
     </>
   );
 }

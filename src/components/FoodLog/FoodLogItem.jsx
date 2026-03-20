@@ -1,13 +1,11 @@
+import { MACROS } from '../../data/macros';
 import styles from './FoodLog.module.css';
 
-const MACROS = [
-  { key: 'cal',     label: 'kcal',    color: 'var(--cal)',     fmt: v => Math.round(v)        },
-  { key: 'protein', label: 'protein', color: 'var(--protein)', fmt: v => v.toFixed(1) + 'g'  },
-  { key: 'carbs',   label: 'carbs',   color: 'var(--carbs)',   fmt: v => v.toFixed(1) + 'g'  },
-  { key: 'fat',     label: 'fat',     color: 'var(--fat)',     fmt: v => v.toFixed(1) + 'g'  },
-  { key: 'sodium',  label: 'sodium',  color: 'var(--sodium)',  fmt: v => Math.round(v) + 'mg' },
-  { key: 'sugar',   label: 'sugar',   color: 'var(--sugar)',   fmt: v => v.toFixed(1) + 'g'  },
-];
+const FMT = {
+  kcal: v => Math.round(v),
+  g:    v => v.toFixed(1) + 'g',
+  mg:   v => Math.round(v) + 'mg',
+};
 
 export default function FoodLogItem({ entry, onDelete, onEdit }) {
   return (
@@ -47,10 +45,10 @@ export default function FoodLogItem({ entry, onDelete, onEdit }) {
         {entry.grams != null && <span className={styles.entryGrams}>{entry.grams}g</span>}
       </span>
 
-      {MACROS.map(({ key, label, color, fmt }) => (
+      {MACROS.map(({ key, unit, color }) => (
         <div key={key} className={styles.macro}>
-          <span className={styles.val} style={{ color }}>{fmt(entry[key] ?? 0)}</span>
-          <span className={styles.lbl}>{label}</span>
+          <span className={styles.val} style={{ color }}>{(FMT[unit] || FMT.g)(entry[key] ?? 0)}</span>
+          <span className={styles.lbl}>{unit === 'kcal' ? 'kcal' : key}</span>
         </div>
       ))}
 
