@@ -118,16 +118,16 @@
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.35);
   border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(1px);
 }
 
 .overlayText {
-  color: #fff;
+  color: #374151;
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.3px;
