@@ -9,7 +9,7 @@ const EXAMPLES = [
   'dim sum — 3 har gow and 2 siu mai',
 ];
 
-export default function FoodChat({ onAddMany }) {
+export default function FoodChat({ onAddMany, isPremium }) {
   const [text, setText] = useState('');
   const [status, setStatus] = useState('idle'); // idle | loading | error
   const [errorMsg, setErrorMsg] = useState('');
@@ -59,7 +59,7 @@ export default function FoodChat({ onAddMany }) {
   }
 
   return (
-    <section className={styles.section}>
+    <section className={`${styles.section} ${!isPremium ? styles.locked : ''}`}>
       <div className={styles.header}>
         <span className={styles.badge}>AI</span>
         <h2 className={styles.heading}>What did you eat?</h2>
@@ -99,6 +99,12 @@ export default function FoodChat({ onAddMany }) {
 
       {status === 'error' && (
         <p className={styles.error}>{errorMsg}</p>
+      )}
+
+      {!isPremium && (
+        <div className={styles.overlay}>
+          <span className={styles.overlayText}>Premium feature</span>
+        </div>
       )}
     </section>
   );

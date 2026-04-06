@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <>
       <SummaryCards totals={totals} goals={goals} />
-      {isPremium && <FoodChat onAddMany={addEntries} />}
+      <FoodChat onAddMany={addEntries} isPremium={isPremium} />
       <SavedRecipes currentDate={currentDate} onLogged={refreshCurrentLog} />
       <AddFoodForm onAdd={addEntry} onSaveRecipe={saveAndLogRecipe} />
       <FoodLog entries={currentLog} onDelete={deleteEntry} onUpdate={updateEntry} />
