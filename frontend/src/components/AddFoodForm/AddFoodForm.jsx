@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { QUICK_FOODS } from '../../data/quickFoods';
 import { MACRO_KEYS } from '../../data/macros';
+import { apiRequest } from '../../api/client.js';
 import styles from './AddFoodForm.module.css';
 
 const EMPTY = { name: '', cal: '', protein: '', carbs: '', fat: '', sodium: '', sugar: '' };
@@ -15,7 +16,7 @@ function sumIngredients(ingredients) {
   }, {});
 }
 
-export default function AddFoodForm({ onAdd }) {
+export default function AddFoodForm({ onAdd, onSaveRecipe }) {
   const [fields, setFields] = useState(EMPTY);
   const [suggestions, setSuggestions] = useState([]);
   const [showDrop, setShowDrop] = useState(false);
@@ -67,13 +68,10 @@ export default function AddFoodForm({ onAdd }) {
     if (value.length < 2) { setSuggestions([]); setShowDrop(false); return; }
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(value)}&pageSize=7&api_key=${import.meta.env.VITE_USDA_API_KEY}`
-        );
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || res.statusText);
-        setSuggestions(data.foods || []);
-        setShowDrop(data.foods?.length > 0);
+        const token = localStorage.getItem('token');
+        const foods = await apiRequest(`/api/food/usda/search?query=${encodeURIComponent(value)}`, {}, token);
+        setSuggestions(foods);
+        setShowDrop(foods.length > 0);
       } catch (err) {
         console.error('USDA search failed:', err.message);
         setSuggestions([]);
@@ -235,14 +233,9 @@ export default function AddFoodForm({ onAdd }) {
     setRecipeIngredients(prev => prev.filter((_, idx) => idx !== i));
   }
 
-  function finishRecipe() {
+  async function finishRecipe() {
     if (!recipeName.trim() || recipeIngredients.length === 0) return;
-    onAdd({
-      name: recipeName.trim(),
-      ...sumIngredients(recipeIngredients),
-      recipe: true,
-      ingredients: recipeIngredients,
-    });
+    await onSaveRecipe(recipeName.trim(), recipeIngredients);
     setRecipeMode(false);
     setRecipeName('');
     setRecipeIngredients([]);

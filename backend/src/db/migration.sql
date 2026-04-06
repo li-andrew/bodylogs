@@ -96,6 +96,14 @@ CREATE TABLE workout_logs (
 );
 
 -- ============================================
+-- PREMIUM WHITELIST
+-- ============================================
+CREATE TABLE premium_users (
+  user_id    UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  added_at   TIMESTAMPTZ DEFAULT now()
+);
+
+-- ============================================
 -- INDEXES (primary query pattern: user + date)
 -- ============================================
 CREATE INDEX idx_food_logs_user_date    ON food_logs(user_id, logged_at);

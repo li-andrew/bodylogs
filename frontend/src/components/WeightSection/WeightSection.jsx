@@ -4,8 +4,8 @@ import { todayKey } from '../../lib/dateUtils';
 import LineChart from '../LineChart/LineChart';
 import styles from './WeightSection.module.css';
 
-export default function WeightSection({ syncDate, onHoverDate }) {
-  const { weightLog, goalWeight, logWeight } = useWeight();
+export default function WeightSection({ syncDate, onHoverDate, goalWeight }) {
+  const { weightLog, logWeight } = useWeight();
   const [input, setInput] = useState('');
 
   const today = todayKey();

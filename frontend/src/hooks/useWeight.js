@@ -1,30 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { todayKey } from '../lib/dateUtils';
-
-function loadWeightLog() {
-  const all = {};
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith('weight_') && key !== 'weight_goal') {
-      const val = parseFloat(localStorage.getItem(key));
-      if (!isNaN(val)) all[key.slice(7)] = val;
-    }
-  }
-  return all;
-}
+import { useAuth } from '../contexts/AuthContext';
+import { food as foodApi } from '../api/food';
 
 export function useWeight() {
-  const [weightLog, setWeightLog] = useState(loadWeightLog);
-  const [goalWeight] = useState(() => {
-    const val = parseFloat(localStorage.getItem('weight_goal'));
-    return isNaN(val) ? null : val;
-  });
+  const { token } = useAuth();
+  const [weightLog, setWeightLog] = useState({});
 
-  function logWeight(val) {
+  // Load all weight entries on mount
+  useEffect(() => {
+    if (!token) { setWeightLog({}); return; }
+
+    foodApi.getWeight(token).then(rows => {
+      const mapped = {};
+      for (const row of rows) {
+        const date = String(row.logged_at).slice(0, 10);
+        mapped[date] = Number(row.weight);
+      }
+      setWeightLog(mapped);
+    }).catch(console.error);
+  }, [token]);
+
+  async function logWeight(val) {
     const today = todayKey();
-    localStorage.setItem('weight_' + today, String(val));
+    await foodApi.logWeight({ weight: val, logged_at: today }, token);
     setWeightLog(prev => ({ ...prev, [today]: val }));
   }
 
-  return { weightLog, goalWeight, logWeight };
+  return { weightLog, logWeight };
 }

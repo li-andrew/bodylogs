@@ -21,8 +21,9 @@ router.post('/register', async (req, res) => {
     const user = result.rows[0];
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
-    res.status(201).json({ user: { id: user.id, email: user.email }, token });
+    res.status(201).json({ user: { id: user.id, email: user.email, is_premium: false }, token });
   } catch (err) {
+    console.error('Register error:', err.message);
     if (err.code === '23505') {
       return res.status(409).json({ error: 'Email already exists' });
     }
@@ -44,9 +45,12 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    const premiumResult = await db.query('SELECT 1 FROM premium_users WHERE user_id = $1', [user.id]);
+    const is_premium = premiumResult.rows.length > 0;
+
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
-    res.json({ user: { id: user.id, email: user.email }, token });
+    res.json({ user: { id: user.id, email: user.email, is_premium }, token });
   } catch {
     res.status(500).json({ error: 'Login failed' });
   }

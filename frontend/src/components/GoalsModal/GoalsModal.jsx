@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from './GoalsModal.module.css';
 
-export default function GoalsModal({ isOpen, goals, onClose, onSave }) {
+export default function GoalsModal({ isOpen, goals, goalWeight: goalWeightProp, onClose, onSave }) {
   const [fields, setFields] = useState(goals);
   const [goalWeight, setGoalWeight] = useState('');
 
@@ -9,10 +9,9 @@ export default function GoalsModal({ isOpen, goals, onClose, onSave }) {
   useEffect(() => {
     if (isOpen) {
       setFields(goals);
-      const stored = localStorage.getItem('weight_goal');
-      setGoalWeight(stored ?? '');
+      setGoalWeight(goalWeightProp != null ? String(goalWeightProp) : '');
     }
-  }, [isOpen, goals]);
+  }, [isOpen, goals, goalWeightProp]);
 
   function set(key, value) {
     setFields(prev => ({ ...prev, [key]: value }));
@@ -20,7 +19,6 @@ export default function GoalsModal({ isOpen, goals, onClose, onSave }) {
 
   function handleSave() {
     const gw = parseFloat(goalWeight);
-    if (!isNaN(gw) && gw > 0) localStorage.setItem('weight_goal', String(gw));
     onSave({
       cal:     parseFloat(fields.cal)     || goals.cal,
       protein: parseFloat(fields.protein) || goals.protein,
@@ -28,6 +26,7 @@ export default function GoalsModal({ isOpen, goals, onClose, onSave }) {
       fat:     parseFloat(fields.fat)     || goals.fat,
       sodium:  parseFloat(fields.sodium)  || goals.sodium,
       sugar:   parseFloat(fields.sugar)   || goals.sugar,
+      weight:  !isNaN(gw) && gw > 0 ? gw : (goalWeightProp ?? 0),
     });
   }
 

@@ -64,16 +64,30 @@ export async function deleteItem(req, res) {
 export async function getLogs(req, res) {
   try {
     const { date } = req.query;
-    const result = await db.query(
-      `SELECT fl.id, fl.servings, fl.logged_at, fl.food_item_id,
-              fi.name, fi.calories, fi.protein, fi.carbs, fi.fat,
-              fi.sodium, fi.sugar, fi.grams
-       FROM food_logs fl
-       JOIN food_items fi ON fl.food_item_id = fi.id
-       WHERE fl.user_id = $1 AND fl.logged_at = $2
-       ORDER BY fl.created_at`,
-      [req.userId, date]
-    );
+    let result;
+    if (date) {
+      result = await db.query(
+        `SELECT fl.id, fl.servings, fl.logged_at, fl.food_item_id,
+                fi.name, fi.calories, fi.protein, fi.carbs, fi.fat,
+                fi.sodium, fi.sugar, fi.grams
+         FROM food_logs fl
+         JOIN food_items fi ON fl.food_item_id = fi.id
+         WHERE fl.user_id = $1 AND fl.logged_at = $2
+         ORDER BY fl.created_at`,
+        [req.userId, date]
+      );
+    } else {
+      result = await db.query(
+        `SELECT fl.id, fl.servings, fl.logged_at, fl.food_item_id,
+                fi.name, fi.calories, fi.protein, fi.carbs, fi.fat,
+                fi.sodium, fi.sugar, fi.grams
+         FROM food_logs fl
+         JOIN food_items fi ON fl.food_item_id = fi.id
+         WHERE fl.user_id = $1
+         ORDER BY fl.logged_at, fl.created_at`,
+        [req.userId]
+      );
+    }
     res.json(result.rows);
   } catch {
     res.status(500).json({ error: 'Failed to fetch food logs' });

@@ -24,7 +24,7 @@ function avgColor(avg, goal, rule) {
 }
 
 export default function Metrics() {
-  const { logs, goals } = useOutletContext();
+  const { logs, goals, goalWeight } = useOutletContext();
   const [syncDate, setSyncDate] = useState(null);
 
   return (
@@ -32,7 +32,7 @@ export default function Metrics() {
       <h2 className={styles.heading}>Metrics</h2>
       <p className={styles.sub}>Track your trends over time.</p>
 
-      <WeightSection syncDate={syncDate} onHoverDate={setSyncDate} />
+      <WeightSection syncDate={syncDate} onHoverDate={setSyncDate} goalWeight={goalWeight} />
 
       <div className={styles.grid}>
         {MACROS.map(({ key, label, unit, color }) => {

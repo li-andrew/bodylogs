@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { formatDateLabel } from '../../lib/dateUtils';
 import styles from './Header.module.css';
 
-export default function Header({ currentDate, onPrevDay, onNextDay, onOpenGoals }) {
+export default function Header({ currentDate, onPrevDay, onNextDay, onOpenGoals, onLogout }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const isHome = pathname === '/';
@@ -62,6 +62,12 @@ export default function Header({ currentDate, onPrevDay, onNextDay, onOpenGoals 
                 onClick={() => { setOpen(false); onOpenGoals(); }}
               >
                 Set new goals
+              </button>
+              <button
+                className={styles.dropdownItem}
+                onClick={() => { setOpen(false); onLogout(); }}
+              >
+                Log out
               </button>
             </div>
           )}
